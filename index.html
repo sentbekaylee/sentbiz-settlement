@@ -459,8 +459,9 @@ const amtR = (val, cur) => val
   : <div style={{fontSize:13,color:T.fg4,textAlign:'right'}}>-</div>;
 
 const PAYMENT_COL_DEFS = [
-  { key:'상태',        w:'0.65fr',align:'left',  sortable:false, render: r => <Badge variant={STATUS_MAP[r.status]?.v||'neutral'}>{r.status}</Badge> },
-  { key:'결제 일시',   w:'1.35fr',align:'left',  sortable:true,  render: r => <div style={{fontSize:13,color:T.fg2,whiteSpace:'nowrap'}}>{r.payment_date}</div> },
+  { key:'상태',          w:'0.65fr',align:'left',  sortable:false, render: r => <Badge variant={STATUS_MAP[r.status]?.v||'neutral'}>{r.status}</Badge> },
+  { key:'결제 요청일시', w:'1.35fr',align:'left',  sortable:true,  render: r => <div style={{fontSize:13,color:T.fg2,whiteSpace:'nowrap'}}>{r.payment_date}</div> },
+  { key:'결제일시',      w:'1.35fr',align:'left',  sortable:true,  render: r => <div style={{fontSize:13,color:r.updated_at==='—'?T.fg4:T.fg2,whiteSpace:'nowrap'}}>{r.updated_at==='—'?'—':r.updated_at}</div> },
   { key:'고객사 주문 ID', w:'0.9fr',align:'left', sortable:false, render: r => <div style={mono}>{r.client_order_id||'—'}</div> },
   { key:'고객사',      w:'1.0fr', align:'left',  sortable:false, render: r => txt(r.client_display) },
   { key:'채널',        w:'1.0fr', align:'left',  sortable:false, render: r => txt(r.channel_display) },
@@ -497,6 +498,10 @@ const PaymentSearchFilter = () => (
       </div>
       <div style={frow}>
         <span style={{...flbl,minWidth:24}}>일자</span>
+        <select style={{...selectBase,width:110,flexShrink:0}}>
+          <option>결제 요청일시</option>
+          <option>결제일시</option>
+        </select>
         <div style={{flex:1,minWidth:0}}><DateRangePicker/></div>
       </div>
       <div style={frow}>
