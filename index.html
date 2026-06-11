@@ -108,7 +108,6 @@ const NAV_GROUPS = [
     children: [
       // { key:'settlement', icon:'ClipboardText', label:'정산 내역' }, // hidden
       { key:'payment', icon:'ArrowsLeftRight', label:'결제 내역' },
-      { key:'refund',  icon:'ArrowUUpLeft',   label:'환불 내역' },
     ],
   },
 ];
@@ -937,101 +936,6 @@ const PaymentRefundPage = () => {
   );
 };
 
-// ─── 환불 내역 mock data ────────────────────────────────────────────────────────
-const REFUND_ROWS = [
-  { id:'rfd1', refund_date:'2026-03-24 11:55:30', refund_id:'RFD-20260324-0001', payment_id:'PMT-20260324-0002', external_id:'EXT-LM-00392', refund_type:'전체취소', refund_status:'성공',  client_name:'롯데쇼핑',   channel:'간편결제', buyer_name:'김민준', refund_amount:120000, refund_currency:'KRW', callback_reference_data:'ORDER-LM-20260324-002' },
-  { id:'rfd2', refund_date:'2026-03-24 14:10:19', refund_id:'RFD-20260324-0002', payment_id:'PMT-20260324-0003', external_id:'EXT-CJ-00187', refund_type:'부분취소', refund_status:'성공',  client_name:'CJ온스타일', channel:'계좌이체', buyer_name:'이서연', refund_amount: 15000, refund_currency:'KRW', callback_reference_data:'ORDER-LM-20260324-003' },
-  { id:'rfd3', refund_date:'2026-03-25 09:03:11', refund_id:'RFD-20260325-0001', payment_id:'PMT-20260324-0001', external_id:'EXT-LM-00391', refund_type:'전체취소', refund_status:'실패',  client_name:'롯데쇼핑',   channel:'신용카드', buyer_name:'홍길동', refund_amount: 85000, refund_currency:'KRW', callback_reference_data:'ORDER-LM-20260324-001' },
-  { id:'rfd4', refund_date:'2026-03-25 13:44:02', refund_id:'RFD-20260325-0002', payment_id:'PMT-20260324-0005', external_id:'EXT-CJ-00201', refund_type:'부분취소', refund_status:'처리중', client_name:'CJ온스타일', channel:'간편결제', buyer_name:'최현우', refund_amount: 30000, refund_currency:'KRW', callback_reference_data:'ORDER-LM-20260324-005' },
-  { id:'rfd5', refund_date:'2026-03-25 16:21:58', refund_id:'RFD-20260325-0003', payment_id:'PMT-20260324-0004', external_id:'EXT-LM-00394', refund_type:'전체취소', refund_status:'성공',  client_name:'롯데쇼핑',   channel:'신용카드', buyer_name:'박지수', refund_amount:230000, refund_currency:'KRW', callback_reference_data:'ORDER-LM-20260324-004' },
-];
-
-const REFUND_COL_DEFS = [
-  { key:'환불 일시',       w:'1.1fr', align:'left',  render: r => <div style={{fontSize:13,color:T.fg2,whiteSpace:'nowrap'}}>{r.refund_date}</div> },
-  { key:'환불 상태',       w:'0.65fr',align:'left',  render: r => <Badge variant={STATUS_MAP[r.refund_status]?.v||'neutral'}>{r.refund_status}</Badge> },
-  { key:'환불 유형',       w:'0.7fr', align:'left',  render: r => <Badge variant={r.refund_type==='전체취소'?'refund':'waiting'}>{r.refund_type}</Badge> },
-  { key:'환불 ID',         w:'1.3fr', align:'left',  render: r => <div style={mono}>{r.refund_id}</div> },
-  { key:'원 결제 거래 ID', w:'1.3fr', align:'left',  render: r => <div style={mono}>{r.payment_id}</div> },
-  { key:'External ID',     w:'1.0fr', align:'left',  render: r => <div style={mono}>{r.external_id||'—'}</div> },
-  { key:'고객사 가맹점',   w:'0.85fr',align:'left',  render: r => <div style={{fontSize:13,color:T.fg2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.client_name}</div> },
-  { key:'채널',            w:'0.7fr', align:'left',  render: r => <div style={{fontSize:13,color:T.fg2,whiteSpace:'nowrap'}}>{r.channel}</div> },
-  { key:'구매자',          w:'0.7fr', align:'left',  render: r => <div style={{fontSize:13,color:T.fg2,whiteSpace:'nowrap'}}>{r.buyer_name}</div> },
-  { key:'환불 금액',       w:'0.9fr', align:'right', render: r => <div style={{fontSize:13,fontWeight:600,color:T.negative,textAlign:'right',fontVariantNumeric:'tabular-nums',whiteSpace:'nowrap'}}>{fmt(r.refund_amount)}<span style={{fontSize:11,fontWeight:400,color:T.fg4,marginLeft:3}}>{r.refund_currency}</span></div> },
-  { key:'Callback Ref',    w:'1.1fr', align:'left',  render: r => <div style={mono}>{r.callback_reference_data||'—'}</div> },
-];
-
-const RefundSearchFilter = () => (
-  <div style={{margin:'0 32px 4px',background:'#FFFFFF',borderRadius:12,padding:'14px 20px',boxShadow:'0 1px 4px rgba(15,23,42,0.07)',display:'flex',flexDirection:'column',gap:10}}>
-    <div style={{display:'grid',gridTemplateColumns:'1.4fr 1.1fr 1.1fr 1.1fr 1.1fr 1.1fr',gap:10,alignItems:'center'}}>
-      <div style={{display:'flex',alignItems:'center',gap:6,minWidth:0}}>
-        <select style={{...cptSel,width:106,flexShrink:0}}>
-          <option>고객사 가맹점명</option>
-          <option>고객사 가맹점 ID</option>
-        </select>
-        <input placeholder="입력" style={{...cpt,flex:1,minWidth:0}}/>
-      </div>
-      <div style={{display:'flex',alignItems:'center',gap:6,minWidth:0}}>
-        <select style={{...cptSel,width:76,flexShrink:0}}><option>채널명</option></select>
-        <input placeholder="입력" style={{...cpt,flex:1,minWidth:0}}/>
-      </div>
-      <div style={{display:'flex',alignItems:'center',gap:6,minWidth:0}}>
-        <select style={{...cptSel,width:80,flexShrink:0}}><option>구매자명</option></select>
-        <input placeholder="입력" style={{...cpt,flex:1,minWidth:0}}/>
-      </div>
-      <select style={{...cptSel,flex:1}}>
-        <option value="">환불 유형 전체</option>
-        <option>전체취소</option><option>부분취소</option>
-      </select>
-      <select style={{...cptSel,flex:1}}>
-        <option value="" disabled selected>환불 상태</option>
-        <option>성공</option><option>실패</option><option>처리중</option>
-      </select>
-      <DateRangePicker/>
-    </div>
-    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr auto',gap:10,alignItems:'center'}}>
-      <input placeholder="환불 ID"         style={{...cpt}}/>
-      <input placeholder="원 결제 거래 ID" style={{...cpt}}/>
-      <input placeholder="External ID"     style={{...cpt}}/>
-      <Button type="solid" usage="primary" size="sm" style={{minWidth:80,height:32}}>조회</Button>
-    </div>
-  </div>
-);
-
-// ─── 환불 내역 Page ─────────────────────────────────────────────────────────────
-const RefundPage = () => {
-  const totalAmt   = REFUND_ROWS.reduce((s,r)=>s+r.refund_amount,0);
-  const fullAmt    = REFUND_ROWS.filter(r=>r.refund_type==='전체취소').reduce((s,r)=>s+r.refund_amount,0);
-  const partialAmt = REFUND_ROWS.filter(r=>r.refund_type==='부분취소').reduce((s,r)=>s+r.refund_amount,0);
-  return (
-    <div style={{flex:1,overflow:'auto',background:T.surfaceNormal}}>
-      {/* Page header */}
-      <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between',padding:'28px 32px 20px'}}>
-        <div>
-          <div style={{fontSize:13,color:T.fg4,marginBottom:4}}>Request to Payment</div>
-          <h1 style={{margin:0,fontSize:26,fontWeight:700,color:T.fg1,letterSpacing:'-0.005em'}}>환불 내역</h1>
-        </div>
-        <Button type="solid" usage="secondary" size="sm">
-          <Icon name="DownloadSimple" size={14} color={T.primaryHeavy}/>
-          CSV 다운로드
-        </Button>
-      </div>
-
-      {/* Summary */}
-      <HorizontalSummaryCard items={[
-        { label:'총 환불 금액',    value:fmt(totalAmt),   sub:'KRW', accent:T.negative },
-        { label:'전체 취소 금액',  value:fmt(fullAmt),    sub:'KRW', accent:T.negative },
-        { label:'부분 취소 금액',  value:fmt(partialAmt), sub:'KRW', accent:T.warning  },
-      ]}/>
-
-      {/* Search filter */}
-      <RefundSearchFilter/>
-
-      {/* Data table */}
-      <DataTable rows={REFUND_ROWS} colKeys={REFUND_COL_DEFS.map(c=>c.key)} colDefs={REFUND_COL_DEFS}/>
-    </div>
-  );
-};
-
 // ─── App ──────────────────────────────────────────────────────────────────────
 const App = () => {
   const [page, setPage] = useState('payment');
@@ -1040,7 +944,7 @@ const App = () => {
     <div style={{display:'flex',height:'100vh',overflow:'hidden',fontFamily:"'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif"}}>
       <Sidebar active={page} onNavigate={setPage} folded={folded} onToggleFold={()=>setFolded(f=>!f)}/>
       <main style={{flex:1,overflow:'hidden',display:'flex',flexDirection:'column'}}>
-        {page==='settlement' ? <SettlementPage/> : page==='refund' ? <RefundPage/> : <PaymentRefundPage/>}
+        {page==='settlement' ? <SettlementPage/> : <PaymentRefundPage/>}
       </main>
     </div>
   );
