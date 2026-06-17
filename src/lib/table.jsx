@@ -32,9 +32,6 @@ export const DataTable = ({ rows, colKeys, colDefs, onRowClick, showToolbar = fa
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 0 12px' }}>
           <span style={{ fontSize: 13, color: T.fg3 }}>총 <b style={{ color: T.fg1, fontWeight: 700 }}>{rows.length}</b>개</span>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <Button type="line" usage="tertiary" size="sm">
-              <Icon name="DownloadSimple" size={14} color={T.primaryHeavy} />엑셀 다운로드
-            </Button>
             <select style={{ ...selectBase, height: 36, fontSize: 13, width: 80 }} value={pageSize}
               onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}>
               {[10, 30, 50, 100].map(n => <option key={n} value={n}>{n}건</option>)}
