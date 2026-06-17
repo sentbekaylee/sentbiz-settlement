@@ -3,7 +3,7 @@ import { T, fmt, toISO, SUMMARY_STATUS_MAP } from '../../lib/tokens.js';
 import { Badge } from '../../lib/primitives.jsx';
 import { DataTable, amtR } from '../../lib/table.jsx';
 import SettlementMetrics from '../../components/SettlementMetrics.jsx';
-import { SETTLEMENT_SUMMARY } from '../../data/settlement.js';
+import { SETTLEMENT_SUMMARY, SETTLEMENT_ROWS } from '../../data/settlement.js';
 
 // ─── i18n ─────────────────────────────────────────────────────────────────────
 const LABELS = {
@@ -23,7 +23,10 @@ const LABELS = {
     totalFee: '전체 수수료', vat: '부가세', status: '상태',
     // modal
     modalTitle: '정산 상세',
-    close: '닫기', confirm: '확정하기', paidBtn: 'PAID 반영',
+    close: '닫기', confirm: '확정하기', paidBtn: '지급완료',
+    confirmMsg: '정산 내용을 확정하시겠습니까?\n확정 후에는 수정이 불가합니다.',
+    paidMsg: '지급 완료 처리하시겠습니까?\n처리 후에는 되돌릴 수 없습니다.',
+    cancel: '취소', ok: '확인',
     mTradeDate: '거래완료일', mPayDate: '지급예정일', mChannel: '채널',
     mRevision: '추출 회차', mRevisionSuffix: '회차',
     mClient: '고객사', mMerchantId: '가맹점 ID',
@@ -49,6 +52,9 @@ const LABELS = {
     // modal
     modalTitle: 'Settlement Detail',
     close: 'Close', confirm: 'Confirm', paidBtn: 'Mark as Paid',
+    confirmMsg: 'Confirm this settlement?\nThis cannot be undone.',
+    paidMsg: 'Mark as paid?\nThis cannot be undone.',
+    cancel: 'Cancel', ok: 'OK',
     mTradeDate: 'Trade Date', mPayDate: 'Payment Date', mChannel: 'Channel',
     mRevision: 'Revision', mRevisionSuffix: '',
     mClient: 'Merchant', mMerchantId: 'Merchant ID',
@@ -80,6 +86,7 @@ const VDivider = () => <div style={{ width: 1, height: 20, background: '#E9ECF1'
 
 // ─── Detail modal ─────────────────────────────────────────────────────────────
 function SettlementDailyModal({ row, onClose, onConfirm, onPaid, L }) {
+  const [confirmType, setConfirmType] = useState(null);
   if (!row) return null;
 
   const statusInfo = SUMMARY_STATUS_MAP[row.status] || { label: row.status, v: 'neutral' };
@@ -106,7 +113,7 @@ function SettlementDailyModal({ row, onClose, onConfirm, onPaid, L }) {
       onClick={onClose}
     >
       <div
-        style={{ background: '#FFFFFF', borderRadius: 16, width: 520, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.22)' }}
+        style={{ background: '#FFFFFF', borderRadius: 16, width: 520, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.22)', position: 'relative' }}
         onClick={e => e.stopPropagation()}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px 16px', borderBottom: '1px solid #F1F5F9', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
@@ -141,7 +148,6 @@ function SettlementDailyModal({ row, onClose, onConfirm, onPaid, L }) {
               <AmtRow label={L.mRefundAmt} value={row.total_refund_amount} cur={row.currency} accent={T.negative} />
             )}
             <AmtRow label={L.mTotalFee}  value={row.total_fee_amount} cur={row.currency} accent={T.fg3} />
-            <AmtRow label={L.mVat}       value={row.vat_amount} cur={row.currency} accent={T.fg4} />
             <div style={{ height: 1, background: '#E2E8F0', margin: '8px 0' }} />
             <AmtRow label={L.mSettleAmt} value={row.settlement_amount} cur={row.settlement_currency || row.currency} accent={T.positive} bold />
           </div>
@@ -152,13 +158,42 @@ function SettlementDailyModal({ row, onClose, onConfirm, onPaid, L }) {
             </div>
           )}
 
+          {confirmType && (
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+              <div style={{ background: '#FFF', borderRadius: 12, padding: '24px', width: 300, boxShadow: '0 8px 32px rgba(0,0,0,0.18)' }}>
+                <div style={{ fontSize: 14, color: T.fg1, lineHeight: 1.6, whiteSpace: 'pre-line', marginBottom: 20 }}>
+                  {confirmType === 'confirm' ? L.confirmMsg : L.paidMsg}
+                </div>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                  <button onClick={() => setConfirmType(null)} style={{ all: 'unset', cursor: 'pointer', border: `1px solid ${T.borderDefault}`, borderRadius: 6, padding: '8px 20px', fontSize: 14, color: T.fg2, boxSizing: 'border-box' }}>
+                    {L.cancel}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirmType === 'confirm') {
+                        onConfirm(row.id);
+                        setConfirmType(null);
+                      } else {
+                        onPaid(row.id);
+                        setConfirmType(null);
+                      }
+                    }}
+                    style={{ all: 'unset', cursor: 'pointer', background: T.primaryHeavy, borderRadius: 6, padding: '8px 20px', fontSize: 14, fontWeight: 600, color: '#FFF', boxSizing: 'border-box' }}
+                  >
+                    {L.ok}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
             <button onClick={onClose} style={{ all: 'unset', cursor: 'pointer', border: `1px solid ${T.borderDefault}`, borderRadius: 6, padding: '10px 24px', fontSize: 14, color: T.fg2, boxSizing: 'border-box' }}>
               {L.close}
             </button>
             {row.status === 'READY' && (
               <button
-                onClick={() => { onConfirm(row.id); onClose(); }}
+                onClick={() => setConfirmType('confirm')}
                 style={{ all: 'unset', cursor: 'pointer', border: `1px solid ${T.primaryHeavy}`, borderRadius: 6, padding: '10px 24px', fontSize: 14, fontWeight: 600, color: T.primaryHeavy, boxSizing: 'border-box' }}
               >
                 {L.confirm}
@@ -166,7 +201,7 @@ function SettlementDailyModal({ row, onClose, onConfirm, onPaid, L }) {
             )}
             {row.status === 'CONFIRMED' && (
               <button
-                onClick={() => { onPaid(row.id); onClose(); }}
+                onClick={() => setConfirmType('paid')}
                 style={{ all: 'unset', cursor: 'pointer', background: T.primaryHeavy, borderRadius: 6, padding: '10px 24px', fontSize: 14, fontWeight: 600, color: '#FFFFFF', boxSizing: 'border-box' }}
               >
                 {L.paidBtn}
@@ -186,7 +221,17 @@ const txt = v => (
   </div>
 );
 
-const makeCols = L => [
+const makeCols = (L, onDownload) => [
+  { key: 'download', label: '', w: '48px',
+    render: r => (
+      <button
+        onClick={e => { e.stopPropagation(); onDownload(r); }}
+        title="엑셀 다운로드"
+        style={{ all: 'unset', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 6, border: '1px solid #E3E6EB', background: '#FFF' }}
+      >
+        <div style={{ width: 16, height: 16, background: T.fg3, WebkitMask: '/design_system/assets/icons/DownloadSimple.svg center/contain no-repeat', mask: 'url(/design_system/assets/icons/DownloadSimple.svg) center/contain no-repeat' }} />
+      </button>
+    )},
   { key: 'tradeDate',   label: L.tradeDate,     w: '120px', sortable: true,
     render: r => <div style={{ fontSize: 13, fontWeight: 700, color: T.fg1, whiteSpace: 'nowrap' }}>{r.target_date}</div> },
   { key: 'payDate',     label: L.payDate,        w: '120px',
@@ -263,6 +308,38 @@ export default function SettlementDaily({ lang = 'ko' }) {
   const handleConfirm = id => setDateRows(prev => prev.map(r => r.id === id ? { ...r, status: 'CONFIRMED' } : r));
   const handlePaid    = id => setDateRows(prev => prev.map(r => r.id === id ? { ...r, status: 'PAID', paid_at: '2026-03-27 10:00' } : r));
 
+  const downloadBatch = row => {
+    const batchRows = SETTLEMENT_ROWS.filter(r =>
+      r.settlement_date === row.target_date && r.client_merchant_id === row.client_merchant_id
+    );
+    const headers = ['거래유형','거래완료일시','채널','채널넘버','고객사상점ID','고객사주문ID','거래금액','거래통화','전체수수료','수수료통화','부가세','정산금액','정산통화','결제ID','환불ID','월렛거래ID','환율'];
+    const csvRows = batchRows.map(r => [
+      r.transaction_type === 'PAYMENT' ? '결제' : '환불',
+      r.transaction_date ?? '',
+      r.channel ?? '',
+      r.channel_id ?? '',
+      r.client_merchant_id ?? '',
+      r.client_order_id ?? '',
+      r.payment_amount ?? '',
+      r.transaction_currency ?? '',
+      r.fee_amount ?? '',
+      r.fee_currency ?? '',
+      r.vat_amount ?? '',
+      r.settlement_amount ?? '',
+      r.settlement_currency ?? '',
+      r.transaction_payment_id ?? '',
+      r.transaction_refund_id ?? '',
+      r.wlt_trd_id ?? '',
+      r.fx_rate ?? '',
+    ]);
+    const csv = [headers, ...csvRows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `정산배치_${row.target_date}_${row.client_merchant_id}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+  };
+
   // 같은 배치(날짜+채널+고객사)에서 최고 회차만 표시
   const finalRows = useMemo(() => {
     const maxRev = {};
@@ -277,7 +354,7 @@ export default function SettlementDaily({ lang = 'ko' }) {
   }, [dateRows]);
 
   const modalRow = selectedId ? (dateRows?.find(r => r.id === selectedId) ?? null) : null;
-  const cols     = useMemo(() => makeCols(L), [lang]);
+  const cols     = useMemo(() => makeCols(L, downloadBatch), [lang]);
 
   return (
     <>
