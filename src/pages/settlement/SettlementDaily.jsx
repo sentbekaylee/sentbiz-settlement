@@ -259,12 +259,12 @@ const makeCols = (L, onDownload) => [
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function SettlementDaily({ lang = 'ko' }) {
   const today    = new Date();
-  const initFrom = toISO(new Date(today.getFullYear(), today.getMonth() - 3, today.getDate()));
+  const initFrom = toISO(new Date(today.getFullYear(), today.getMonth() - 1, today.getDate()));
   const initTo   = toISO(today);
 
   const [dateFrom,  setDateFrom]  = useState(initFrom);
   const [dateTo,    setDateTo]    = useState(initTo);
-  const [quickDate, setQuickDate] = useState('3개월');
+  const [quickDate, setQuickDate] = useState('1개월');
   const [dateRows,  setDateRows]  = useState(() =>
     SETTLEMENT_SUMMARY.filter(r => r.target_date >= initFrom && r.target_date <= initTo)
   );

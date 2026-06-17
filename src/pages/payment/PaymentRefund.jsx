@@ -178,6 +178,7 @@ export default function PaymentRefund() {
   const [channel,   setChannel]   = useState('');
   const [mchType,   setMchType]   = useState('가맹점명');
   const [merchant,  setMerchant]  = useState('');
+  const [buyerType, setBuyerType] = useState('구매자명');
   const [buyer,     setBuyer]     = useState('');
   const [rows,      setRows]      = useState(PAYMENT_ROWS);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -188,7 +189,18 @@ export default function PaymentRefund() {
     if (idVal.trim())      result = result.filter(r => r.client_order_id.includes(idVal.trim()));
     if (channel.trim())    result = result.filter(r => r.channel_display.includes(channel.trim()));
     if (merchant.trim())   result = result.filter(r => r.merchant_display.includes(merchant.trim()));
-    if (buyer.trim())      result = result.filter(r => r.buyer_display.includes(buyer.trim()));
+    if (buyer.trim()) {
+      const q = buyer.trim();
+      if (buyerType === '구매자 이메일') {
+        result = result.filter(r => {
+          const m = r.buyer_display.match(/\(([^)]+)\)/);
+          return m && m[1].toLowerCase().includes(q.toLowerCase());
+        });
+      } else {
+        const name = r => r.buyer_display.replace(/\s*\([^)]*\)$/, '');
+        result = result.filter(r => name(r).toLowerCase().includes(q.toLowerCase()));
+      }
+    }
     setRows(result);
   };
 
@@ -271,7 +283,7 @@ export default function PaymentRefund() {
             <div style={{ display: 'flex', gap: 54, alignItems: 'center' }}>
               {/* 가맹점 */}
               <div style={FIELD}>
-                <span style={LABEL}>가맹점</span>
+                <span style={LABEL}>고객사 가맹점</span>
                 <CompositeInput
                   prefixOptions={['가맹점명', '가맹점 ID']}
                   prefixValue={mchType}
@@ -285,11 +297,13 @@ export default function PaymentRefund() {
               {/* 구매자 */}
               <div style={FIELD}>
                 <span style={LABEL}>구매자</span>
-                <input
+                <CompositeInput
+                  prefixOptions={['구매자명', '구매자 이메일']}
+                  prefixValue={buyerType}
+                  onPrefixChange={setBuyerType}
+                  placeholder={buyerType === '구매자 이메일' ? '이메일 입력' : '구매자명 입력'}
                   value={buyer}
-                  onChange={e => setBuyer(e.target.value)}
-                  placeholder="구매자 입력명"
-                  style={plainInput}
+                  onChange={setBuyer}
                 />
               </div>
             </div>
