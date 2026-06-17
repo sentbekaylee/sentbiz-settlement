@@ -250,13 +250,6 @@ export default function SettlementDetail({ lang = 'ko' }) {
           </div>
           <div style={{ flex: 1 }} />
           <button
-            onClick={handleDownload}
-            style={{ all: 'unset', cursor: 'pointer', background: '#FFFFFF', color: '#303030', border: '1px solid #E3E6EB', borderRadius: 6, padding: '9px 14px', fontSize: 14, fontWeight: 600, boxSizing: 'border-box', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}
-          >
-            <div style={{ width: 16, height: 16, background: '#303030', WebkitMask: '/design_system/assets/icons/DownloadSimple.svg center/contain no-repeat', mask: 'url(/design_system/assets/icons/DownloadSimple.svg) center/contain no-repeat', flexShrink: 0 }} />
-            다운로드
-          </button>
-          <button
             onClick={handleSearch}
             style={{ all: 'unset', cursor: 'pointer', background: '#303030', color: '#FFFFFF', borderRadius: 6, padding: '9px 28px', fontSize: 14, fontWeight: 600, boxSizing: 'border-box', whiteSpace: 'nowrap' }}
           >
@@ -307,6 +300,15 @@ export default function SettlementDetail({ lang = 'ko' }) {
       </div>
 
       <SettlementMetrics rows={SETTLEMENT_SUMMARY} lang={lang} />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '0 32px 10px' }}>
+        <button
+          onClick={handleDownload}
+          style={{ all: 'unset', cursor: 'pointer', background: '#FFFFFF', color: '#303030', border: '1px solid #E3E6EB', borderRadius: 6, padding: '8px 14px', fontSize: 13, fontWeight: 600, boxSizing: 'border-box', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}
+        >
+          <div style={{ width: 15, height: 15, background: '#303030', WebkitMask: '/design_system/assets/icons/DownloadSimple.svg center/contain no-repeat', mask: 'url(/design_system/assets/icons/DownloadSimple.svg) center/contain no-repeat', flexShrink: 0 }} />
+          엑셀 다운로드
+        </button>
+      </div>
       <DataTable rows={dateRows} colKeys={cols.map(c => c.key)} colDefs={cols} />
     </>
   );
