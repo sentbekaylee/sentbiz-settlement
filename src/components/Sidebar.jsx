@@ -10,7 +10,7 @@ const NAV_GROUPS = [
     children: [
       { key: 'settlement-daily',  icon: 'ClipboardText', label: '정산 일자별 조회' },
       { key: 'settlement-detail', icon: 'List',          label: '정산 건별 조회' },
-      { key: 'payment',           icon: 'Receipt',       label: '결제 환불 내역' },
+      { key: 'payment',           icon: 'Receipt',       label: '결제 · 환불 내역' },
     ],
   },
 ];
@@ -77,7 +77,7 @@ const SidebarGroup = ({ group, active, onNavigate, folded }) => {
   );
 };
 
-export default function Sidebar({ active, onNavigate, folded, onToggleFold }) {
+export default function Sidebar({ active, onNavigate, folded, onToggleFold, lang = 'ko', onLangChange }) {
   return (
     <aside style={{ width: folded ? 64 : 240, flexShrink: 0, height: '100%', background: '#122666', display: 'flex', flexDirection: 'column', transition: 'width 0.2s ease-in-out', overflow: 'hidden' }}>
       <div style={{ height: 68, flexShrink: 0, display: 'flex', alignItems: 'center', padding: folded ? 0 : '0 20px', justifyContent: folded ? 'center' : 'flex-start', borderBottom: '1px solid rgba(203,213,225,0.10)' }}>
@@ -92,6 +92,23 @@ export default function Sidebar({ active, onNavigate, folded, onToggleFold }) {
         ))}
       </nav>
       <div style={{ padding: '12px 0', display: 'flex', flexDirection: 'column', gap: 2, borderTop: '1px solid rgba(203,213,225,0.10)' }}>
+        {/* 언어 토글 */}
+        <div style={{ padding: folded ? '4px 0' : '4px 16px', display: 'flex', justifyContent: folded ? 'center' : 'flex-start', marginBottom: 4 }}>
+          <div style={{ display: 'flex', background: 'rgba(203,213,225,0.10)', borderRadius: 6, overflow: 'hidden', border: '1px solid rgba(203,213,225,0.15)' }}>
+            {['ko', 'en'].map(l => (
+              <button key={l} onClick={() => onLangChange?.(l)} style={{
+                all: 'unset', cursor: 'pointer',
+                padding: folded ? '4px 8px' : '4px 14px',
+                fontSize: 11, fontWeight: 600, letterSpacing: '0.04em',
+                background: lang === l ? 'rgba(255,255,255,0.18)' : 'transparent',
+                color: lang === l ? '#FFFFFF' : '#94A3B8',
+                transition: 'all 0.12s',
+              }}>
+                {folded ? l.toUpperCase() : l === 'ko' ? '한국어' : 'EN'}
+              </button>
+            ))}
+          </div>
+        </div>
         {FOOTER_NAV.map(({ key, icon, label }) => (
           <SidebarItem key={key} icon={icon} label={label} isActive={false} folded={folded} onClick={() => {}} />
         ))}

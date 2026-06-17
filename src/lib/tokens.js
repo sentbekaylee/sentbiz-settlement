@@ -37,7 +37,7 @@ export const STATUS_MAP = {
 };
 
 export const SUMMARY_STATUS_MAP = {
-  READY:     { label: '정산준비', v: 'waiting' },
-  CONFIRMED: { label: '확정',     v: 'progress' },
+  READY:     { label: '집계완료', v: 'progress' },
+  CONFIRMED: { label: '확정',     v: 'waiting' },
   PAID:      { label: '지급완료', v: 'positive' },
 };

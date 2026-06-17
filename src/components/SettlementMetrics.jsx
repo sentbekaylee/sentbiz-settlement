@@ -1,13 +1,32 @@
 import { T, fmt } from '../lib/tokens.js';
 import { Icon } from '../lib/icons.jsx';
 
-export default function SettlementMetrics({ rows }) {
+const METRIC_LABELS = {
+  ko: {
+    title: '정산 현황', sub: '기간 기준 집계',
+    totalAmt: '총 거래 금액', totalSettled: '총 정산 완료',
+    confirmed: '확정', ready: '집계완료',
+    fee: '전체 수수료',
+  },
+  en: {
+    title: 'Settlement Summary', sub: 'Period aggregate',
+    totalAmt: 'Total Trade Amount', totalSettled: 'Total Settled',
+    confirmed: 'Confirmed', ready: 'Aggregated',
+    fee: 'Total Fee',
+  },
+};
+
+export default function SettlementMetrics({ rows, lang = 'ko' }) {
+  const L = METRIC_LABELS[lang] ?? METRIC_LABELS.ko;
+
   const totalPayAmt = rows.reduce((s, r) => s + r.total_payment_amount, 0);
-  const totalPayCnt = rows.reduce((s, r) => s + r.payment_count, 0);
+  const totalPayCnt = rows.reduce((s, r) => s + r.total_count, 0);
   const paidAmt     = rows.filter(r => r.status === 'PAID').reduce((s, r) => s + r.settlement_amount, 0);
-  const paidCnt     = rows.filter(r => r.status === 'PAID').reduce((s, r) => s + r.payment_count, 0);
+  const paidCnt     = rows.filter(r => r.status === 'PAID').reduce((s, r) => s + r.total_count, 0);
   const confAmt     = rows.filter(r => r.status === 'CONFIRMED').reduce((s, r) => s + r.settlement_amount, 0);
-  const confCnt     = rows.filter(r => r.status === 'CONFIRMED').reduce((s, r) => s + r.payment_count, 0);
+  const confCnt     = rows.filter(r => r.status === 'CONFIRMED').reduce((s, r) => s + r.total_count, 0);
+  const readyAmt    = rows.filter(r => r.status === 'READY').reduce((s, r) => s + r.settlement_amount, 0);
+  const readyCnt    = rows.filter(r => r.status === 'READY').reduce((s, r) => s + r.total_count, 0);
   const totalFeeAmt = rows.reduce((s, r) => s + r.total_fee_amount, 0);
   const totalVatAmt = rows.reduce((s, r) => s + r.vat_amount, 0);
 
@@ -30,20 +49,20 @@ export default function SettlementMetrics({ rows }) {
           <Icon name="TrendUp" size={20} color={T.positive} />
         </div>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: T.fg1 }}>정산 현황</div>
-          <div style={{ fontSize: 11, color: T.fg3, marginTop: 2, whiteSpace: 'nowrap' }}>기간 기준 집계</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: T.fg1 }}>{L.title}</div>
+          <div style={{ fontSize: 11, color: T.fg3, marginTop: 2, whiteSpace: 'nowrap' }}>{L.sub}</div>
         </div>
       </div>
       <D />
-      <Metric label="총 거래 금액"     value={<KRW n={totalPayAmt} />} sub={`${totalPayCnt}건`} />
+      <Metric label={L.totalAmt}     value={<KRW n={totalPayAmt} />} sub={`${totalPayCnt}건`} />
       <D />
-      <Metric label="총 정산 완료"     value={<KRW n={paidAmt} />}     sub={`${paidCnt}건`}     accent={T.positive} />
+      <Metric label={L.totalSettled} value={<KRW n={paidAmt} />}    sub={`${paidCnt}건`}     accent={T.positive} />
       <D />
-      <Metric label="총 정산 예정"     value={<KRW n={confAmt} />}     sub={`${confCnt}건`}     accent={T.progress} />
+      <Metric label={L.confirmed}    value={<KRW n={confAmt} />}    sub={`${confCnt}건`}     accent="#F97316" />
       <D />
-      <Metric label="PG 수수료"        value={<KRW n={totalFeeAmt} />} />
+      <Metric label={L.ready}        value={<KRW n={readyAmt} />}   sub={`${readyCnt}건`}    accent={T.progress} />
       <D />
-      <Metric label="PG 수수료 부가세" value={<KRW n={totalVatAmt} />} sub="(10%)" />
+      <Metric label={L.fee} value={<KRW n={totalFeeAmt} />} />
     </div>
   );
 }

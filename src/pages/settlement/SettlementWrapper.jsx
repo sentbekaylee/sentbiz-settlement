@@ -3,22 +3,32 @@ import SettlementDaily from './SettlementDaily.jsx';
 import SettlementDetail from './SettlementDetail.jsx';
 import PaymentRefund from '../payment/PaymentRefund.jsx';
 
-const TABS = [
-  { key: 'settlement-daily',  label: '정산 일자별 조회' },
-  { key: 'settlement-detail', label: '정산 건별 조회' },
-];
-
-const PAGE_TITLES = {
-  payment:            '결제 환불 내역',
-  'settlement-daily': '정산 일자별 조회',
-  'settlement-detail':'정산 건별 조회',
+const TABS = {
+  ko: [
+    { key: 'settlement-daily',  label: '정산 일자별 조회' },
+    { key: 'settlement-detail', label: '정산 건별 조회' },
+    { key: 'payment',           label: '결제 · 환불 내역' },
+  ],
+  en: [
+    { key: 'settlement-daily',  label: 'Daily Settlement' },
+    { key: 'settlement-detail', label: 'Transaction List' },
+    { key: 'payment',           label: 'Payment · Refund' },
+  ],
 };
 
-export default function SettlementWrapper({ active, onNavigate }) {
+const PAGE_TITLES = {
+  ko: { payment: '결제 · 환불 내역', 'settlement-daily': '정산 일자별 조회', 'settlement-detail': '정산 건별 조회' },
+  en: { payment: 'Payment · Refund', 'settlement-daily': 'Daily Settlement', 'settlement-detail': 'Transaction List' },
+};
+
+export default function SettlementWrapper({ active, onNavigate, lang = 'ko' }) {
+  const tabs   = TABS[lang]   ?? TABS.ko;
+  const titles = PAGE_TITLES[lang] ?? PAGE_TITLES.ko;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ background: T.bg, borderBottom: `1px solid ${T.surfaceHeavy}`, padding: '0 32px', display: 'flex', gap: 0, flexShrink: 0 }}>
-        {TABS.map(tab => {
+        {tabs.map(tab => {
           const isActive = tab.key === active;
           return (
             <button key={tab.key} onClick={() => onNavigate(tab.key)} style={{
@@ -37,14 +47,14 @@ export default function SettlementWrapper({ active, onNavigate }) {
 
       <div style={{ padding: '20px 32px 16px', flexShrink: 0 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: T.fg1, margin: 0 }}>
-          {PAGE_TITLES[active] ?? ''}
+          {titles[active] ?? ''}
         </h1>
       </div>
 
       <div style={{ flex: 1, overflow: 'auto', paddingBottom: 32 }}>
-        {active === 'payment'            && <PaymentRefund />}
-        {active === 'settlement-daily'   && <SettlementDaily />}
-        {active === 'settlement-detail'  && <SettlementDetail />}
+        {active === 'payment'           && <PaymentRefund />}
+        {active === 'settlement-daily'  && <SettlementDaily lang={lang} />}
+        {active === 'settlement-detail' && <SettlementDetail lang={lang} />}
       </div>
     </div>
   );

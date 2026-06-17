@@ -48,7 +48,7 @@ export const DataTable = ({ rows, colKeys, colDefs, onRowClick, showToolbar = fa
             <div style={{ display: 'grid', gridTemplateColumns: grid, background: T.surfaceNormal, borderBottom: `1px solid ${T.surfaceHeavy}`, padding: '0 20px', height: 44, alignItems: 'center', gap: 10 }}>
               {cols.map(c => (
                 <div key={c.key} style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: c.align === 'right' ? 'flex-end' : 'flex-start', overflow: 'hidden' }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: T.fg3, letterSpacing: '0.04px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.key}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: T.fg3, letterSpacing: '0.04px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.label ?? c.key}</span>
                   {c.sortable && <Icon name="ArrowDown" size={12} color={T.fg4} />}
                 </div>
               ))}

@@ -7,60 +7,68 @@ import PaymentDetailModal from './PaymentDetailModal.jsx';
 
 // ─── Summary Bar ────────────────────────────────────────────────────────────
 
+const COIN_ICON = 'https://www.figma.com/api/mcp/asset/1f97a7ec-906c-41d4-b4bd-ba2e91c27c76';
+
 const StatDivider = () => (
-  <div style={{ width: 1, height: 44, background: '#EAEFF5', flexShrink: 0, margin: '0 24px 0 0' }} />
+  <div style={{ width: 1, height: 44, background: '#EAEFF5', flexShrink: 0, margin: '0 24px' }} />
 );
 
 const StatItem = ({ label, value, color }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2, paddingRight: 24 }}>
-    <span style={{ fontSize: 14, color: '#757575', lineHeight: '20px' }}>{label}</span>
-    <span style={{ fontSize: 16, fontWeight: 600, color, lineHeight: '24px', whiteSpace: 'nowrap' }}>{value}</span>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+    <span style={{ fontSize: 14, color: '#757575', lineHeight: '20px', letterSpacing: '0.035px' }}>{label}</span>
+    <span style={{ fontSize: 16, fontWeight: 600, color, lineHeight: '24px', letterSpacing: '0.024px', whiteSpace: 'nowrap' }}>{value}</span>
   </div>
 );
 
 function SummaryBar() {
+  const today = new Date();
+  const dateLabel = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`;
+
   const totalCount   = PAYMENT_ROWS.length;
   const receivedCnt  = PAYMENT_ROWS.filter(r => r.status === '수취완료').length;
   const pendingCnt   = PAYMENT_ROWS.filter(r => r.status === '대기').length;
   const failedCnt    = PAYMENT_ROWS.filter(r => r.status === '실패').length;
-  const totalAmt     = PAYMENT_ROWS.reduce((s, r) => s + (r.receive_amount || 0), 0);
+  const totalAmt     = PAYMENT_ROWS.reduce((s, r) => s + (r.request_amount || 0), 0);
+  const currency     = PAYMENT_ROWS[0]?.request_currency || 'KRW';
 
   return (
     <div style={{
       margin: '0 32px 16px', background: '#FFFFFF', borderRadius: 8,
-      border: '1px solid #EEEEEE', boxShadow: '0 2px 4px rgba(15,23,42,0.08)',
+      border: '1px solid #EEEEEE', boxShadow: '0 2px 8px rgba(15,23,42,0.08)',
       height: 80, padding: '0 24px',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     }}>
       {/* 좌: 아이콘 + 타이틀 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <div style={{
-          width: 40, height: 40, background: T.surfaceNormal, borderRadius: 6,
+          width: 40, height: 40, background: '#F8FAFC', borderRadius: 6,
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          fontSize: 20,
-        }}>🪙</div>
+        }}>
+          <img src={COIN_ICON} alt="coins" style={{ width: 24, height: 24 }} />
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: 16, fontWeight: 600, color: T.fg1, lineHeight: '24px' }}>일간 현황</span>
-          <span style={{ fontSize: 12, color: T.fg4, lineHeight: '18px', whiteSpace: 'nowrap' }}>
-            2026. 6. 15 (KST 00:00 ~ 23:59) 기준 집계
+          <span style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', lineHeight: '24px' }}>일간 현황</span>
+          <span style={{ fontSize: 12, color: '#94A3B8', lineHeight: '18px', letterSpacing: '0.06px', whiteSpace: 'nowrap' }}>
+            {dateLabel} (KST 00:00 ~ 23:59) 기준 집계
           </span>
         </div>
       </div>
 
       {/* 우: 통계 */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <StatItem label="전체 건수"  value={`${totalCount}건`}  color="#303030" />
+        <StatItem label="전체 건수" value={`${totalCount}건`} color="#303030" />
         <StatDivider />
-        <StatItem label="수취완료"   value={`${receivedCnt}건`} color={T.positive} />
+        <StatItem label="수취완료"  value={`${receivedCnt}건`} color={T.positive} />
         <StatDivider />
-        <StatItem label="대기"       value={`${pendingCnt}건`}  color={T.warning} />
+        <StatItem label="대기"      value={`${pendingCnt}건`}  color="#FF6200" />
         <StatDivider />
-        <StatItem label="실패"       value={`${failedCnt}건`}   color={T.negative} />
+        <StatItem label="실패"      value={`${failedCnt}건`}   color="#F91C1C" />
         <StatDivider />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
-          <span style={{ fontSize: 14, color: '#757575', lineHeight: '20px' }}>총 결제금액</span>
-          <span style={{ fontSize: 16, fontWeight: 600, color: '#303030', lineHeight: '24px' }}>
-            {fmt(totalAmt)}<span style={{ fontSize: 14, fontWeight: 400, color: T.fg4, marginLeft: 4 }}>KRW</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+          <span style={{ fontSize: 14, color: '#757575', lineHeight: '20px', letterSpacing: '0.035px' }}>총 결제금액</span>
+          <span style={{ fontSize: 16, fontWeight: 600, color: '#303030', lineHeight: '24px', letterSpacing: '0.024px' }}>
+            {fmt(totalAmt)}{' '}
+            <span style={{ fontWeight: 400, color: '#94A3B8' }}>{currency}</span>
           </span>
         </div>
       </div>
